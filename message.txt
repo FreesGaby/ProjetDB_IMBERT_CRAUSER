@@ -1,0 +1,86 @@
+Donne les requêtes d’insertion permettant de remplir la base de données dont le modèle relationnel est le suivant : 
+
+Etablissement = (id_etablissement INT, nom_etablissement VARCHAR(50), code_etablissement VARCHAR(20), creation_date DATE); 
+Profil = (id_profil INT, nom_profil VARCHAR(50), prenom_profil VARCHAR(50), pseudo_profil VARCHAR(50), email_profil VARCHAR(50), mdp_hash VARCHAR(50), avatar_url VARCHAR(50),biographie_profil VARCHAR(250), promo_code VARCHAR(50), creation_profil DATE, #id_etablissement); 
+Publication = (id_publication INT, texte_publication VARCHAR(2000), creation_post DATE, maj_post DATE, #id_profil); 
+Groupe = (id_groupe INT, nom_groupe VARCHAR(50), type_groupe VARCHAR(50), creation_groupe DATE, #id_etablissement); 
+Commentaire = (#id_publication, id_commentaire INT, texte_commentaire VARCHAR(200), creation_commentaire DATE, #id_profil); 
+Conversation = (id_conversation INT, type_conversation VARCHAR(10), sujet_conversation VARCHAR(50), creation_conversation DATE); 
+Media = (id_media INT, url_media VARCHAR(500), #id_publication); 
+Message = (id_message INT, contenu_message VARCHAR(400), creation_message DATETIME, #id_profil, #id_conversation); 
+ProfilGroupe = (#id_profil, #id_groupe, role_groupe VARCHAR(50), a_rejoint_groupe VARCHAR(50)); 
+ConversationParticipant = (#id_profil, #id_conversation, role_participant VARCHAR(50), rejoint_le DATE); 
+RelationProfil = (#id_profil_suiveur, #id_profil_suivi, suivi_depuis DATETIME); 
+ReactionPublication = (#id_profil, #id_publication, creation_reaction DATETIME, type_reaction VARCHAR(10)); 
+
+Les clés primaires correspondent aux id, sauf si autre chose est précisé (quand c'est un attribut composé) les clés étrangères sont identifiées par les #, 
+et ont le même nom que les clés primaires auxquelles elles font référence. 
+
+Il doit y avoir : 
+
+1. etablissement(id_etablissement, nom_etablissement, code_etablissement, creation_date) 
+- 5 établissement (dont l'EFREI obligatoirement) (ex : "Université Paris Cité", "EFREI Paris", "Sorbonne", "INSA Lyon", etc.) 
+- 'code_etablissement' : 5 à 8 lettres majuscules (ex : "EFREI", "UPCITE"). 
+- 'creation_date' basé sur les vrai dates de création 
+
+2. profil(id_profil, nom_profil, prenom_profil, pseudo_profil, email_profil, mdp_hash, avatar_url, biographie_profil, promo_code, creation_profil, id_etablissement) 
+- 60 profils environ dont 45 sont étudiants dans l'établissement EFREI 
+- 'email_profil' valide (format a@b.cc et a ne doit pas contenir d'accent) 
+- 'mdp_hash' peut être une suite aléatoire simulant un hachage de mot de passe au format SHA 1 
+- 'promo_code' : exemple "ING2026" - Chaque profil appartient à un établissement existant 
+
+3. publication(id_publication, texte_publication; creation_post, maj_post, id_profil) 
+- Environ 80 publications sur le thème de l'informatique 
+- 'texte_publication' : phrases naturelles (2 à 5 phrases) 
+- 'maj_post' >= 'creation_post' ou NULL 
+- Chaque publication appartient à un profil existant 
+
+4. media(id_media, url_media, id_publication) 
+- 30 médias environ 
+- 'url_media' : liens plausibles ("https://cdn.site.com/imageX.jpg") 
+- Chaque média référence une publication existante 
+
+5. commentaire(id_publication, id_commentaire, texte_commentaire, creation_commentaire, id_profil) 
+- 100 commentaires environ cohérents par rapport à la publication commentée 
+- 'id_commentaire' commence à 1 pour chaque publication 
+- 'texte_commentaire' : phrases naturelles (5 à 20 mots) 
+- L'auteur ('id_profil') doit exister et ne pas forcément être l'auteur de la publication 
+
+6. relation_profil(id_profil_suiveur, id_profil_suivi, suivi_depuis) 
+- 200 relations environ 
+- Aucune auto-relation (pas de profil qui se suit lui-même) 
+- Pas de doublon 
+- Dates réalistes (2022-2025) 
+
+7. reaction_publication(id_profil, id_publication, creation_reaction, type_reaction) 
+- 250 réactions environ (les élèves ne voient que les publications des autres eleves du meme etablissement qu'eux) 
+- 'type_reaction' ∈ ('LIKE', 'LOVE', 'HAHA', 'WOW', 'SAD', 'ANGRY') 
+- Chaque combinaison (profil, publication) unique 
+
+8. groupe(id_groupe, nom_groupe, type_groupe, creation_groupe, id_etablissement) 
+- 15 groupes environ (clubs, associations, promos, etc.) 
+- 'type_groupe' : exemples "Sport", "Jeux vidéo", "Culture", "Informatique" 
+- Chaque groupe appartient à un établissement 
+
+9. profil_groupe(id_profil, id_groupe, role_groupe, a_rejoint_groupe) 
+- 100 lignes environ 
+- Rôles possibles : "Membre", "Admin", "Modérateur" 
+- Date cohérente (>= date de création du groupe) 
+
+10. conversation(id_conversation, type_conversation, sujet_conversation, creation_conversation) - 15 conversations environ (entre des personnes du même établissement) 
+- 'type_conversation' : "prive" ou "groupe" 
+
+11. conversation_participant(id_profil, id_conversation, role_participant, rejoint_le) 
+- 60 lignes environ 
+- 2 à 10 participants par conversation 
+
+12. message(id_message, contenu_message, creation_message, id_profil, id_conversation) 
+- 250 messages environ 
+- Chaque message est envoyé par un participant de la conversation 
+- Fait attention au fait qu'elles aient du sens et qu'elles soient dans le contexte. 
+
+Utilise des noms d’artistes, de musées, d’œuvres qui ont existé. 
+
+Les clés étrangères doivent faire référence aux clés primaires existantes : donne les lignes en commençant par remplir les tables dans lesquelles il n'y a pas de clés étrangères, puis les tables dans lesquelles les clés étrangères font références à des clés primaires des tables déjà remplies. Assure-toi que les noms et prénoms des étudiants font références à des origines variées et sont mixtes. 
+
+Fournis l'ensemble directement dans un fichier sous la forme d’un script SQL prêt à être exécuté.
